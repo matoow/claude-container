@@ -78,6 +78,9 @@ services:
       # Optional: Mount GitHub CLI config for gh authentication (read-only)
       - ${HOME}/.config/gh:/home/${CONTAINER_USER:-mark}/.config/gh:ro
 
+      # Optional: Mount npmrc for GitHub Packages / private registry auth (read-only)
+      - ${HOME}/.npmrc:/home/${CONTAINER_USER:-mark}/.npmrc:ro
+
       # Required for notifications
       - /run/user/1000:/run/user/1000
 
