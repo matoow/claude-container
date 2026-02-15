@@ -22,13 +22,11 @@ services:
       dockerfile: Dockerfile
       args:
         TZ: ${TZ:-UTC}
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.13}
-        GO_VERSION: ${GO_VERSION:-1.23.5}
         USERNAME: *container-user
-    
+
     container_name: claude-code
     hostname: claude-code
-    
+
     # Interactive terminal
     stdin_open: true
     tty: true
@@ -36,12 +34,12 @@ services:
     # Required to allow DBus notifications
     security_opt:
       - apparmor:unconfined
-      
-    # Security capabilities for firewall
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    
+
+    # Security capabilities for firewall - disabled
+    # cap_add:
+    #   - NET_ADMIN
+    #   - NET_RAW
+
     # Environment variables
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
@@ -77,6 +75,9 @@ services:
       # Optional: Mount your git config (read-only)
       - ${HOME}/.gitconfig:/home/${CONTAINER_USER:-mark}/.gitconfig:ro
 
+      # Optional: Mount GitHub CLI config for gh authentication (read-only)
+      - ${HOME}/.config/gh:/home/${CONTAINER_USER:-mark}/.config/gh:ro
+
       # Required for notifications
       - /run/user/1000:/run/user/1000
 
@@ -88,10 +89,10 @@ services:
     working_dir: ${PWD}
 
     userns_mode: host
-    
+
     # Keep container running
     # command: sleep infinity
-    
+
     # Resource limits (adjust as needed)
     deploy:
       resources:

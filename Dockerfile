@@ -4,12 +4,10 @@
 # https://github.com/anthropics/claude-code/tree/main/.devcontainer
 # =============================================================================
 
-FROM node:20-bookworm
+FROM node:22-bookworm
 
 # Build arguments for customization
 ARG TZ=UTC
-ARG PYTHON_VERSION=3.13
-ARG GO_VERSION=1.23.5
 ARG RUST_VERSION=stable
 
 # Set timezone
@@ -31,12 +29,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Shell and terminal
     fzf \
     man-db \
-    # Firewall tools (for network isolation)
-    iptables \
-    ipset \
+    # Firewall tools (for network isolation) - commented out
+    # iptables \
+    # ipset \
     iproute2 \
     dnsutils \
-    aggregate \
+    # aggregate \
     # Text processing and editors
     jq \
     nano \
@@ -53,11 +51,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     libssl-dev \
     libffi-dev \
-    # Python dependencies
-    python3 \
-    python3-pip \
-    python3-venv \
-    python3-dev \
     # GitHub CLI
     gh \
     # Other stuff
@@ -65,15 +58,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libnotify-bin \
     emacs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# =============================================================================
-# Go Setup (optional - comment out if not needed)
-# =============================================================================
-RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz" -o /tmp/go.tar.gz && \
-    tar -C /usr/local -xzf /tmp/go.tar.gz && \
-    rm /tmp/go.tar.gz
-
-ENV PATH="/usr/local/go/bin:$PATH"
 
 # =============================================================================
 # Rust Setup (optional - comment out if not needed)
@@ -94,29 +78,6 @@ RUN mkdir -p /usr/local/share/npm-global && \
     chown -R node:node /usr/local/share
 
 # =============================================================================
-# Python Setup (with uv for fast package management)
-# =============================================================================
-# Install uv (fast Python package manager)
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:$PATH"
-
-# Create symlinks for convenience
-RUN ln -sf /usr/bin/python3 /usr/bin/python && \
-    ln -sf /usr/bin/pip3 /usr/bin/pip
-
-# Install common Python tools globally
-RUN pip install --break-system-packages \
-    pipx \
-    poetry \
-    black \
-    ruff \
-    mypy \
-    pytest \
-    httpx \
-    rich \
-    pyright
-
-# =============================================================================
 # User Configuration
 # =============================================================================
 ARG USERNAME=mark
@@ -125,10 +86,6 @@ ARG USER_GID=1000
 
 # Define user home directory
 ENV USER_HOME=/home/${USERNAME}
-
-# Set Go path now that we know the username
-ENV GOPATH="${USER_HOME}/go"
-ENV PATH="${GOPATH}/bin:$PATH"
 
 # Create user (the base image has "node" with UID 1000, so we rename it)
 RUN usermod -l ${USERNAME} node && \
@@ -157,18 +114,17 @@ ENV CLAUDE_CONFIG_DIR="${USER_HOME}/.claude"
 ENV ENABLE_LSP_TOOLS=1
 
 # =============================================================================
-# Firewall Script (for network isolation)
+# Firewall Script (for network isolation) - disabled
 # =============================================================================
-COPY init-firewall.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/init-firewall.sh && \
-    echo "${USERNAME} ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/${USERNAME}-firewall && \
-    chmod 0440 /etc/sudoers.d/${USERNAME}-firewall
+# COPY init-firewall.sh /usr/local/bin/
+# RUN chmod +x /usr/local/bin/init-firewall.sh && \
+#     echo "${USERNAME} ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/${USERNAME}-firewall && \
+#     chmod 0440 /etc/sudoers.d/${USERNAME}-firewall
 
 # =============================================================================
 # Workspace Setup
 # =============================================================================
 RUN mkdir -p ${USER_HOME}/.claude && chown -R $USERNAME:$USERNAME ${USER_HOME}/.claude
-RUN mkdir -p ${USER_HOME}/go && chown -R $USERNAME:$USERNAME ${USER_HOME}/go
 
 # Give user sudo access (optional - remove for tighter security)
 # RUN echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
