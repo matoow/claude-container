@@ -58,6 +58,10 @@ services:
       # Use emacsclient
       - EDITOR=emacs
 
+      # Volta (JavaScript tool manager)
+      - VOLTA_HOME=/home/${CONTAINER_USER:-mark}/.volta
+      - PATH=/home/${CONTAINER_USER:-mark}/.volta/bin:${PATH}
+
     # Volume mounts
     volumes:
       # Your project workspace - mount to same path as host
@@ -80,6 +84,9 @@ services:
 
       # Optional: Mount npmrc for GitHub Packages / private registry auth (read-only)
       - ${HOME}/.npmrc:/home/${CONTAINER_USER:-mark}/.npmrc:ro
+
+      # Optional: Mount Volta (JavaScript tool manager) from host
+      - ${HOME}/.volta:/home/${CONTAINER_USER:-mark}/.volta
 
       # Required for notifications
       - /run/user/1000:/run/user/1000

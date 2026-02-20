@@ -60,6 +60,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
+# uv (Python package manager - needed for Serena MCP server)
+# =============================================================================
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL=/usr/local/bin sh
+
+# =============================================================================
 # Rust Setup (optional - comment out if not needed)
 # =============================================================================
 ENV RUSTUP_HOME=/usr/local/rustup
