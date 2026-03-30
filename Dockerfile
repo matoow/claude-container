@@ -53,6 +53,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libffi-dev \
     # GitHub CLI
     gh \
+    # Networking
+    socat \
+    # Database client
+    postgresql-client \
     # Other stuff
     asciinema \
     libnotify-bin \
@@ -127,6 +131,26 @@ ENV ENABLE_LSP_TOOLS=1
 #     chmod 0440 /etc/sudoers.d/${USERNAME}-firewall
 
 # =============================================================================
+# AWS CLI v2
+# =============================================================================
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        AWS_CLI_URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        AWS_CLI_URL="https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip"; \
+    fi && \
+    curl -fsSL "$AWS_CLI_URL" -o /tmp/awscliv2.zip && \
+    unzip -q /tmp/awscliv2.zip -d /tmp && \
+    /tmp/aws/install && \
+    rm -rf /tmp/aws /tmp/awscliv2.zip
+
+# =============================================================================
+# Entrypoint & AWS Config Filter
+# =============================================================================
+COPY entrypoint.sh filter-aws-config.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/filter-aws-config.sh
+
+# =============================================================================
 # Workspace Setup
 # =============================================================================
 RUN mkdir -p ${USER_HOME}/.claude && chown -R $USERNAME:$USERNAME ${USER_HOME}/.claude
@@ -144,4 +168,5 @@ RUN curl -fsSL https://claude.ai/install.sh | bash
 SHELL ["/bin/bash", "-c"]
 
 # Default command - start interactive shell
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/bin/bash"]

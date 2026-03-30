@@ -31,6 +31,9 @@ services:
     stdin_open: true
     tty: true
 
+    # Share host network stack (Tailscale, bastion tunnels, etc.)
+    network_mode: host
+
     # Required to allow DBus notifications
     security_opt:
       - apparmor:unconfined
@@ -84,6 +87,9 @@ services:
 
       # Optional: Mount npmrc for GitHub Packages / private registry auth (read-only)
       - ${HOME}/.npmrc:/home/${CONTAINER_USER:-mark}/.npmrc:ro
+
+      # AWS config (read-only) - filtered at startup to exclude prod profiles
+      - ${HOME}/.aws:/tmp/.aws-host:ro
 
       # Optional: Mount Volta (JavaScript tool manager) from host
       - ${HOME}/.volta:/home/${CONTAINER_USER:-mark}/.volta
