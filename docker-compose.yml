@@ -47,6 +47,7 @@ services:
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GROWTHBOOK_API_TOKEN=${GROWTHBOOK_API_TOKEN:-}
       - NODE_OPTIONS=--max-old-space-size=4096
       - CLAUDE_CONFIG_DIR=/home/${CONTAINER_USER:-mark}/.claude
       - TZ=${TZ:-UTC}
@@ -61,9 +62,6 @@ services:
       # Use emacsclient
       - EDITOR=emacs
 
-      # Volta (JavaScript tool manager)
-      - VOLTA_HOME=/home/${CONTAINER_USER:-mark}/.volta
-      - PATH=/home/${CONTAINER_USER:-mark}/.volta/bin:${PATH}
 
     # Volume mounts
     volumes:
@@ -88,14 +86,20 @@ services:
       # Optional: Mount npmrc for GitHub Packages / private registry auth (read-only)
       - ${HOME}/.npmrc:/home/${CONTAINER_USER:-mark}/.npmrc:ro
 
+      # Feature builder CLI (read-only)
+      - ${HOME}/git/feature-builder:/home/${CONTAINER_USER:-mark}/git/feature-builder:ro
+
+      # Orchestrator state
+      - ${HOME}/.orchestrator:/home/${CONTAINER_USER:-mark}/.orchestrator
+
       # AWS config (read-only) - filtered at startup to exclude prod profiles
       - ${HOME}/.aws:/tmp/.aws-host:ro
 
-      # Optional: Mount Volta (JavaScript tool manager) from host
-      - ${HOME}/.volta:/home/${CONTAINER_USER:-mark}/.volta
-
       # Required for notifications
       - /run/user/1000:/run/user/1000
+
+      # Mount host /tmp
+      - /tmp:/tmp
 
       # Share machine ID to prevent re-onboarding
       - /etc/machine-id:/etc/machine-id:ro

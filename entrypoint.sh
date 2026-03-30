@@ -18,4 +18,10 @@ if [ -d /tmp/.aws-host ]; then
     [ -d /tmp/.aws-host/cli ] && cp -r /tmp/.aws-host/cli "$HOME/.aws/"
 fi
 
+# Link feature-builder CLI from mounted host repo
+if ! command -v feature-builder &>/dev/null && [ -f "$HOME/git/feature-builder/packages/server/dist/cli.cjs" ]; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$HOME/git/feature-builder/packages/server/dist/cli.cjs" "$HOME/.local/bin/feature-builder"
+fi
+
 exec "$@"

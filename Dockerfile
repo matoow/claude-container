@@ -165,6 +165,7 @@ USER $USERNAME
 # =============================================================================
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
+
 SHELL ["/bin/bash", "-c"]
 
 # Default command - start interactive shell
