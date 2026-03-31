@@ -8,8 +8,7 @@ ALLOWED_SECTIONS=(
     "profile montu-nonprod"
     "profile montu-uk-staging"
     "profile montu-uk-test"
-    "sso-session montu-uk-staging"
-    "sso-session montu-uk-test"
+    "sso-session montu"
     "montu-nonprod"
     "montu-uk-staging"
 )
